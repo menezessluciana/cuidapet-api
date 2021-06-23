@@ -4,3 +4,5 @@ database:
   port: 3306
   password: cuidapet
   database: cuidapet_db
+firebasePushKey: AAAAERADyCU:APA91bE5ficy9agatn4r4HUJWiKTjjBXNVU0QQvkm4a6a2uGHabeH3I_7aS6bEVR4yIDjAPhR9siVXOtG2ecPDhTQ_68pGHZjksla9Z-rdYXlv86jeySTPklaLPGhYOqXD9eWpPQqB0B
+test: false

@@ -7,22 +7,25 @@ import 'package:mysql1/mysql1.dart';
 
 class ChatRepository {
   final UsuarioRepository _usuarioRepository = UsuarioRepository();
-
   Future<List<ChatModel>> buscarChatsUsuario(int usuario) async {
     MySqlConnection conn;
     final usuarioData = await _usuarioRepository.getById(usuario);
     try {
       conn = await DatabaseConnection.openConnection();
       var query = ''' 
-        select c.id, c.data_criacao, c.status, a.nome, a.nome_pet, a.fornecedor_id, f.nome, f.logo, a.usuario_id
+        select c.id, c.data_criacao, c.status, a.nome, a.nome_pet, a.fornecedor_id, f.nome, f.logo, a.usuario_id, c.agendamento_id
         from chats as c
           inner join agendamento a on c.agendamento_id = a.id
           inner join fornecedor f on a.fornecedor_id = f.id
       ''';
 
+      int usuarioId;
+
       if (usuarioData.fornecedorId == null) {
+        usuarioId = usuario;
         query += 'where a.usuario_id = ?';
       } else {
+        usuarioId = usuarioData.fornecedorId;
         query += 'where a.fornecedor_id = ?';
       }
 
@@ -31,10 +34,20 @@ class ChatRepository {
         order by c.data_criacao  
       ''';
 
-      final result = await conn.query(query, [usuario]);
-
+      final result = await conn.query(query, [usuarioId]);
       return result.map((e) {
-        return ChatModel(id: e[0] as int, status: e[2] as String, nome: e[3] as String, nomePet: e[4] as String, fornecedor: FornecedorModel(id: e[5] as int, nome: e[6] as String, logo: (e[7] as Blob).toString()), usuario: e[8] as int);
+        print(e[9]);
+        return ChatModel(
+            id: e[0] as int,
+            status: e[2] as String,
+            nome: e[3] as String,
+            nomePet: e[4] as String,
+            fornecedor: FornecedorModel(
+                id: e[5] as int,
+                nome: e[6] as String,
+                logo: (e[7] as Blob).toString()),
+            usuario: e[8] as int,
+            agendamentoId: e[9] as int);
       }).toList();
     } catch (e) {
       print(e);
@@ -49,7 +62,7 @@ class ChatRepository {
     try {
       conn = await DatabaseConnection.openConnection();
       final result = await conn.query(''' 
-        select c.id, c.data_criacao, c.status, a.nome, a.nome_pet, a.fornecedor_id, f.nome, f.logo, a.usuario_id
+        select c.id, c.data_criacao, c.status, a.nome, a.nome_pet, a.fornecedor_id, f.nome, f.logo, a.usuario_id, c.agendamento_id
         from chats as c
           inner join agendamento a on c.agendamento_id = a.id
           inner join fornecedor f on a.fornecedor_id = f.id
@@ -58,13 +71,18 @@ class ChatRepository {
         order by c.data_criacao
       ''', [fornecedor]);
       return result.map((e) {
+        print('result $e');
         return ChatModel(
           id: e[0] as int,
           status: e[2] as String,
           nome: e[3] as String,
           nomePet: e[4] as String,
-          fornecedor: FornecedorModel(id: e[5] as int, nome: e[6] as String, logo: (e[7] as Blob).toString()),
+          fornecedor: FornecedorModel(
+              id: e[5] as int,
+              nome: e[6] as String,
+              logo: (e[7] as Blob).toString()),
           usuario: e[8] as int,
+          agendamentoId: e[9] as int,
         );
       }).toList();
     } catch (e) {
@@ -92,7 +110,10 @@ class ChatRepository {
         status: e[2] as String,
         nome: e[3] as String,
         nomePet: e[4] as String,
-        fornecedor: FornecedorModel(id: e[5] as int, nome: e[6] as String, logo: (e[7] as Blob).toString()),
+        fornecedor: FornecedorModel(
+            id: e[5] as int,
+            nome: e[6] as String,
+            logo: (e[7] as Blob).toString()),
         usuario: e[8] as int,
       );
     } catch (e) {
@@ -103,7 +124,8 @@ class ChatRepository {
     }
   }
 
-  Future<List<String>> recuperarDeviceIdPorChat(int id, String usuarioTipo) async {
+  Future<List<String>> recuperarDeviceIdPorChat(
+      int id, String usuarioTipo) async {
     MySqlConnection conn;
     final UsuarioRepository usuarioRepository = UsuarioRepository();
 
@@ -120,7 +142,8 @@ class ChatRepository {
       if (usuarioTipo == 'U') {
         usuario = await usuarioRepository.getById(usuarios.first[0] as int);
       } else {
-        usuario = await usuarioRepository.getByFornecedorId(usuarios.first[1] as int);
+        usuario =
+            await usuarioRepository.getByFornecedorId(usuarios.first[1] as int);
       }
 
       return [usuario.androidToken, usuario.iosToken];
@@ -151,6 +174,7 @@ class ChatRepository {
     MySqlConnection conn;
     try {
       conn = await DatabaseConnection.openConnection();
+
       final result = await conn.query(''' 
         insert into chats(agendamento_id, status, data_criacao) values(?,?,?)
       ''', [agendamento, 'A', DateTime.now().toIso8601String()]);

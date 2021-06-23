@@ -1,4 +1,3 @@
-
 import 'package:cuidapet_api/controllers/chat/dto/notificarUsuario.dart';
 import 'package:cuidapet_api/models/usuario_model.dart';
 import 'package:cuidapet_api/repositories/chat_repository.dart';
@@ -7,7 +6,6 @@ import 'package:cuidapet_api/utils/push_notification_helper.dart';
 import '../../cuidapet_api.dart';
 
 class ChatController extends ResourceController {
-  
   final _chatRepository = ChatRepository();
 
   @Operation.get()
@@ -20,7 +18,12 @@ class ChatController extends ResourceController {
               'usuario': a.usuario,
               'nome': a.nome,
               'nome_pet': a.nomePet,
-              'fornecedor': {'id': a.fornecedor.id, 'nome': a.fornecedor.nome, 'logo': a.fornecedor.logo}
+              'fornecedor': {
+                'id': a.fornecedor.id,
+                'nome': a.fornecedor.nome,
+                'logo': a.fornecedor.logo
+              },
+              'agendamento_id': a.agendamentoId,
             })
         .toList());
   }
@@ -32,12 +35,13 @@ class ChatController extends ResourceController {
   }
 
   @Operation.post()
-  Future<Response> notificarUsuario(@Bind.body() NotificarUsuarioRequest request) async {
-    final List<String> aparelhos = await _chatRepository.recuperarDeviceIdPorChat(request.chat, request.para);
+  Future<Response> notificarUsuario(
+      @Bind.body() NotificarUsuarioRequest request) async {
+    final List<String> aparelhos = await _chatRepository
+        .recuperarDeviceIdPorChat(request.chat, request.para);
     final chat = await _chatRepository.recuperarPorId(request.chat);
-    await PushNotificationHelper.sendMessage(aparelhos, "Nova Mensagem", request.mensagem, {'type': 'CHAT_MESSAGE', 'chat': chat.toMap()});
+    await PushNotificationHelper.sendMessage(aparelhos, "Nova Mensagem",
+        request.mensagem, {'type': 'CHAT_MESSAGE', 'chat': chat.toMap()});
     return Response.ok({});
   }
-
-
 }

@@ -1,8 +1,12 @@
 import 'package:dio/dio.dart';
 
 class PushNotificationHelper {
-  static Future<void> sendMessage(List<String> devices, String title, String body, Map<String, dynamic> payload) async {
-    final header = BaseOptions(headers: {'Authorization': 'key=AAAAQ3zv4FI:APA91bFzltkHZzFm0mSUa65EmImvKZePTjPuLOPOHQEEeEKShepw4Q5RDjQVQYVf-cHhi2y_OcDwqSp5RVaedzYJ3HfmvJj6-UU-oZ6ebNuWqCX7V2IfGegpseY3BoMBUDipIBzj_IzY'});
+  static Future<void> sendMessage(List<String> devices, String title,
+      String body, Map<String, dynamic> payload) async {
+    final header = BaseOptions(headers: {
+      'Authorization':
+          'key=AAAAERADyCU:APA91bE5ficy9agatn4r4HUJWiKTjjBXNVU0QQvkm4a6a2uGHabeH3I_7aS6bEVR4yIDjAPhR9siVXOtG2ecPDhTQ_68pGHZjksla9Z-rdYXlv86jeySTPklaLPGhYOqXD9eWpPQqB0B'
+    });
     final request = {
       "notification": {"body": body, "title": title},
       "priority": "high",
@@ -17,10 +21,10 @@ class PushNotificationHelper {
     for (var device in devices) {
       if (device != null) {
         request['to'] = device;
-        var res = await Dio(header).post('https://fcm.googleapis.com/fcm/send', data: request);
+        var res = await Dio(header)
+            .post('https://fcm.googleapis.com/fcm/send', data: request);
         print(res.data);
       }
     }
-
   }
 }

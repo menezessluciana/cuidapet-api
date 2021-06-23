@@ -1,16 +1,14 @@
-
 import 'package:cuidapet_api/models/fornecedor_model.dart';
 
 class ChatModel {
-
-  ChatModel({
-    this.id,
-    this.usuario,
-    this.fornecedor,
-    this.nome,
-    this.nomePet,
-    this.status,
-  });
+  ChatModel(
+      {this.id,
+      this.usuario,
+      this.fornecedor,
+      this.nome,
+      this.nomePet,
+      this.status,
+      this.agendamentoId});
 
   int id;
   int usuario;
@@ -18,7 +16,7 @@ class ChatModel {
   String nome;
   String nomePet;
   String status;
-
+  int agendamentoId;
 
   Map<String, dynamic> toMap() {
     return {
@@ -28,7 +26,7 @@ class ChatModel {
       'nome': nome,
       'nomePet': nomePet,
       'status': status,
+      'agendamento_id': agendamentoId,
     };
   }
-  
 }
